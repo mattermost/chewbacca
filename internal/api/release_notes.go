@@ -21,7 +21,7 @@ const (
 	releaseNoteActionRequired = "release-note-action-required"
 	deprecationLabel          = "kind/deprecation"
 
-	releaseNoteFormat            = `Adding the "%s" label because no release-note block was detected, please follow our [release note process](https://git.k8s.io/community/contributors/guide/release-notes.md) to remove it.`
+	releaseNoteFormat            = `Adding the "%s" label because no release-note block was detected, please follow our [release note process](https://github.com/mattermost/chewbacca#release-notes-process) to remove it.`
 	releaseNoteDeprecationFormat = `Adding the "%s" label and removing any existing "%s" label because there is a "%s" label on the PR.`
 
 	actionRequiredNote = "action required"
