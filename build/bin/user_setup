@@ -1,0 +1,25 @@
+#!/bin/sh
+set -euo pipefail
+
+# ensure $HOME exists and is accessible by group 0 (we don't know what the runtime UID will be)
+mkdir -p ${HOME}
+chown ${USER_UID}:0 ${HOME}
+chmod ug+rwx ${HOME}
+
+
+chown ${USER_UID}:0 /chewbacca
+chmod ug+rwx /chewbacca
+
+mkdir -p /chewbacca/logs
+chown ${USER_UID}:0 /chewbacca/logs
+chmod ug+rwx /chewbacca/logs
+
+mkdir -p /chewbacca/static
+chown ${USER_UID}:0 /chewbacca/static
+chmod ug+rwx /chewbacca/static
+
+# runtime user will need to be able to self-insert in /etc/passwd
+chmod g+rw /etc/passwd
+
+# no need for this script to remain in the image after running
+rm $0

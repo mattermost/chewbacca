@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chewbacca - Command Help</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+  <script defer="" src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+  <script type="text/javascript">(function r() { window.OL_NOT_LOGIN_PAGE = !0 })("")</script>
+</head>
+<body>
+
+  <div class="header">
+    <a href="#default" class="logo">Chewbacca - Command Help</a>
+  </div>
+
+  <div class="table-container">
+    <table id="command-table" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" data-upgraded=",MaterialDataTable"
+      style="display: table;">
+      <thead>
+        <tr>
+          <th></th>
+          <th class="mdl-data-table__cell--non-numeric">Command</th>
+          <th class="mdl-data-table__cell--non-numeric">Example</th>
+          <th id="description-col" class="mdl-data-table__cell--non-numeric">Description</th>
+          <th id="usage-col" class="mdl-data-table__cell--non-numeric">Who Can Use</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="kind">
+          <td class="mdl-data-table__cell--non-numeric">
+              <div for="icon-stars-0" class="mdl-tooltip" data-upgraded=",MaterialTooltip"
+                style="left: 0px; margin-left: 0px; top: 226px;">Featured command</div>
+            </div>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric table-cell">
+            <div class="command-usage">/kind ?</div>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric">
+            <ul class="command-example-list">
+              <li><span class="command-examples">/kind feature</span></li>
+              <li><span class="command-examples">/kind bug</span></li>
+              <li><span class="command-examples">/kind cleanup</span></li>
+              <li><span class="command-examples">/kind documentation</span></li>
+            </ul>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric table-cell">
+            <div class="command-desc-text">Applies a label from one of the recognized types of labels</div>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric table-cell">
+            <div class="command-desc-text">Anyone can trigger this command.</div>
+          </td>
+        </tr>
+        <tr id="priority">
+          <td class="mdl-data-table__cell--non-numeric">
+            <div for="icon-stars-0" class="mdl-tooltip" data-upgraded=",MaterialTooltip"
+              style="left: 0px; margin-left: 0px; top: 226px;">Featured command</div>
+            </div>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric table-cell">
+            <div class="command-usage">/priority ?</div>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric">
+            <ul class="command-example-list">
+              <li><span class="command-examples">/priority important-soon</span></li>
+              <li><span class="command-examples">/priority critical-urgent</span></li>
+            </ul>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric table-cell">
+            <div class="command-desc-text">Applies a label from one of the recognized types of labels</div>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric table-cell">
+            <div class="command-desc-text">Anyone can trigger this command.</div>
+          </td>
+        </tr>
+        <tr id="remove-label">
+          <td class="mdl-data-table__cell--non-numeric">
+            <div for="icon-stars-0" class="mdl-tooltip" data-upgraded=",MaterialTooltip"
+              style="left: 0px; margin-left: 0px; top: 226px;">Featured command</div>
+            </div>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric table-cell">
+            <div class="command-usage">/remove-(kind|priority)</div>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric">
+            <ul class="command-example-list">
+              <li><span class="command-examples">/remove-kind feature</span></li>
+              <li><span class="command-examples">/remove-priority important-soon</span></li>
+            </ul>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric table-cell">
+            <div class="command-desc-text">Removes a label from one of the recognized types of labels</div>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric table-cell">
+            <div class="command-desc-text">Anyone can trigger this command.</div>
+          </td>
+        </tr>
+        <tr id="release_note_none">
+          <td class="mdl-data-table__cell--non-numeric"></td>
+          <td class="mdl-data-table__cell--non-numeric table-cell">
+            <div class="command-usage">/release-note-none</div>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric">
+            <ul class="command-example-list">
+              <li><span class="command-examples">/release-note-none</span></li>
+            </ul>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric table-cell">
+            <div class="command-desc-text">Adds the 'release-note-none' label to indicate that the PR does not warrant a
+              release note.</div>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric table-cell">
+            <div class="command-desc-text">PR Authors and Org Members.</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+
+</html>
+
+
+
