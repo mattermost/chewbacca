@@ -31,7 +31,7 @@ check-style: govet lint
 lint:
 	@echo Running lint
 	env GO111MODULE=off $(GO) get -u golang.org/x/lint/golint
-	golint -set_exit_status ./...
+	$(shell $(GO) list -f {{.Target}} golang.org/x/lint/golint) -set_exit_status ./...
 	@echo lint success
 
 ## Runs govet against all packages.
