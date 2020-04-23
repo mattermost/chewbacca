@@ -209,11 +209,28 @@ func (g *GHClient) ListRepoLabels(org, repo string) ([]*github.Label, error) {
 		"repo": repo,
 	}).Debug("Getting Repo labels")
 
-	labels, _, err := g.GitHubClient.Issues.ListLabels(context.Background(), org, repo, nil)
-	if err != nil {
-		g.logger.WithError(err).Error("Unable to get the pull request")
-		return nil, err
+	var allLabels []*github.Label
+
+	opt := &github.ListOptions{
+		PerPage: 50,
 	}
 
-	return labels, nil
+	for {
+		repos, resp, err := g.GitHubClient.Issues.ListLabels(context.Background(), org, repo, nil)
+		if err != nil {
+			g.logger.WithError(err).Error("Unable to get the pull request")
+			return nil, err
+		}
+
+		allLabels = append(allLabels, repos...)
+
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opt.Page = resp.NextPage
+	}
+
+	return allLabels, nil
+
 }
