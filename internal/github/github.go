@@ -216,7 +216,7 @@ func (g *GHClient) ListRepoLabels(org, repo string) ([]*github.Label, error) {
 	}
 
 	for {
-		labels, resp, err := g.GitHubClient.Issues.ListLabels(context.Background(), org, repo, nil)
+		labels, resp, err := g.GitHubClient.Issues.ListLabels(context.Background(), org, repo, opt)
 		if err != nil {
 			g.logger.WithError(err).Error("Unable to get the pull request")
 			return nil, err
