@@ -3,7 +3,7 @@ module github.com/mattermost/chewbacca
 go 1.14
 
 require (
-	github.com/aws/aws-sdk-go v1.30.8
+	github.com/aws/aws-sdk-go v1.30.18
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/mux v1.7.4
 	github.com/pborman/uuid v1.2.0
