@@ -129,6 +129,7 @@ func handleReleaseNotesComment(c *Context, ic *github.IssueCommentEvent) error {
 	// Only allow authors and org members to add labels.
 	isMember, err := c.GitHub.IsMember(org, ic.GetComment().GetUser().GetLogin())
 	if err != nil {
+		c.Logger.WithError(err).Error("failed to get the membership")
 		return err
 	}
 
