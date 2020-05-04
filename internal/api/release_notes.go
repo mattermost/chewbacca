@@ -135,6 +135,7 @@ func handleReleaseNotesComment(c *Context, ic *github.IssueCommentEvent) error {
 	isAuthor := utils.IsAuthor(ic.GetIssue().GetUser().GetLogin(), ic.GetComment().GetUser().GetLogin())
 
 	if !isMember && !isAuthor {
+		c.Logger.Info("not member or author")
 		format := "you can only set the release note label to %s if you are the PR author or an org member."
 		resp := fmt.Sprintf(format, releaseNoteNone)
 		c.GitHub.CreateComment(org, repo, number, utils.FormatICResponse(ic.GetComment(), resp))
@@ -144,6 +145,7 @@ func handleReleaseNotesComment(c *Context, ic *github.IssueCommentEvent) error {
 	// Don't allow the /release-note-none command if the release-note block contains a valid release note.
 	blockNL := determineReleaseNoteLabel(ic.GetIssue().GetBody(), utils.LabelsSet(ic.GetIssue().Labels))
 	if blockNL == releaseNote || blockNL == releaseNoteActionRequired {
+		c.Logger.Info("there is a release note already or it is a blocker: %s", blockNL)
 		format := "you can only set the release note label to %s if the release-note block in the PR body text is empty or \"none\"."
 		resp := fmt.Sprintf(format, releaseNoteNone)
 		c.GitHub.CreateComment(org, repo, number, utils.FormatICResponse(ic.GetComment(), resp))
@@ -151,6 +153,7 @@ func handleReleaseNotesComment(c *Context, ic *github.IssueCommentEvent) error {
 	}
 
 	if !utils.HasLabel(releaseNoteNone, ic.GetIssue().Labels) {
+		c.Logger.Info("adding relese note none label")
 		if err := c.GitHub.AddLabels(org, repo, number, []string{releaseNoteNone}); err != nil {
 			return err
 		}
