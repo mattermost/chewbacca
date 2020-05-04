@@ -143,11 +143,13 @@ func (g *GHClient) IsMember(org, user string) (bool, error) {
 		return true, nil
 	}
 
-	_, resp, err := g.GitHubClient.Organizations.GetOrgMembership(context.Background(), user, org)
+	member, resp, err := g.GitHubClient.Organizations.GetOrgMembership(context.Background(), user, org)
 	if err != nil {
 		return false, err
 	}
-	if resp.StatusCode == 204 {
+	if resp.StatusCode == 200 && member.GetState() == "active" {
+		return true, nil
+	} else if resp.StatusCode == 204 && member.GetState() == "active" {
 		return true, nil
 	} else if resp.StatusCode == 404 {
 		return false, nil
