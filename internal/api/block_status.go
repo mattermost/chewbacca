@@ -10,9 +10,12 @@ import (
 )
 
 const (
-	doNotMerge             = "do-not-merge"
-	wip                    = "WIP"
-	releaseNoteLabelNeeded = "do-not-merge/release-note-label-needed"
+	doNotMerge                  = "do-not-merge"
+	doNotMergeAwaitingPR        = "do-not-merge/awaiting-PR"
+	doNotMergeAwaitingSubmitter = "do-not-merge/awaiting-submitter-action"
+	doNotMergeWIP               = "do-not-merge/work-in-progress"
+	wip                         = "WIP"
+	releaseNoteLabelNeeded      = "do-not-merge/release-note-label-needed"
 )
 
 // checkBlockStatus checks if need to block the PR to be merged
@@ -40,7 +43,7 @@ func checkBlockStatus(c *Context, org, repo string, number int) {
 	}
 
 	var mergeLabels []string
-	if utils.HasLabel(doNotMerge, labels) {
+	if utils.HasLabels([]string{doNotMerge, doNotMergeAwaitingPR, doNotMergeAwaitingSubmitter, doNotMergeWIP}, labels) {
 		mergeLabels = append(mergeLabels, doNotMerge)
 	}
 	if utils.HasLabel(releaseNoteLabelNeeded, labels) {
