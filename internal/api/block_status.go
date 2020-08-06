@@ -47,13 +47,13 @@ func checkBlockStatus(c *Context, org, repo string, number int) {
 		mergeLabels = append(mergeLabels, doNotMerge)
 	}
 	if utils.HasLabel(doNotMergeAwaitingPR, labels) {
-		mergeLabels = append(mergeLabels, doNotMerge)
+		mergeLabels = append(mergeLabels, doNotMergeAwaitingPR)
 	}
 	if utils.HasLabel(doNotMergeAwaitingSubmitter, labels) {
-		mergeLabels = append(mergeLabels, doNotMerge)
+		mergeLabels = append(mergeLabels, doNotMergeAwaitingPR)
 	}
 	if utils.HasLabel(doNotMergeWIP, labels) {
-		mergeLabels = append(mergeLabels, doNotMerge)
+		mergeLabels = append(mergeLabels, doNotMergeWIP)
 	}
 	if utils.HasLabel(releaseNoteLabelNeeded, labels) {
 		mergeLabels = append(mergeLabels, releaseNoteLabelNeeded)
