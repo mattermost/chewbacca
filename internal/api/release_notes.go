@@ -52,6 +52,10 @@ func handleReleaseNotesPR(c *Context, pr *github.PullRequestEvent) {
 		return
 	}
 
+	if pr.GetPullRequest().GetState() == "closed" {
+		return
+	}
+
 	org := pr.GetRepo().GetOwner().GetLogin()
 	repo := pr.GetRepo().GetName()
 	number := pr.GetNumber()
