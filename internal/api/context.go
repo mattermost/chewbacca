@@ -14,6 +14,7 @@ type Actions interface {
 type GitHub interface {
 	ValidateSignature(receivedHash []string, bodyBuffer []byte) error
 	CreateComment(org, repo string, number int, comment string)
+	CreateLabel(org, repo string, label github.Label) error
 	AddLabels(org, repo string, number int, labels []string) error
 	RemoveLabel(org, repo string, number int, label string) error
 	GetIssueLabels(org, repo string, number int) ([]*github.Label, error)

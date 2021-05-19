@@ -1,1 +1,6 @@
 /build/chewbacca
+
+# Common used editors/IDEs
+.idea
+.vscode
+*.sw*

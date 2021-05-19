@@ -63,6 +63,18 @@ func (g *GHClient) CreateComment(org, repo string, number int, comment string) {
 	}
 }
 
+// CreateLabel creates a GitHub label to a specific repository if it doesn't exist.
+func (g *GHClient) CreateLabel(org, repo string, label github.Label) error {
+	g.logger.WithField("labels", label).Debug("Creating GitHub label")
+	_, _, err := g.GitHubClient.Issues.CreateLabel(context.Background(), org, repo, &label)
+	if err != nil {
+		g.logger.WithError(err).Debug("Failed to create GitHub label")
+		return err
+	}
+
+	return nil
+}
+
 // AddLabels adds a GitHub label to a specific issue/pull request.
 func (g *GHClient) AddLabels(org, repo string, number int, labels []string) error {
 	g.logger.WithField("labels", labels).Debug("Setting GitHub label")
