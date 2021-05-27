@@ -13,7 +13,7 @@ type Actions interface {
 // GitHub describes the interface required to persist changes made via API requests.
 type GitHub interface {
 	ValidateSignature(receivedHash []string, bodyBuffer []byte) error
-	CreateComment(org, repo string, number int, comment string)
+	CreateComment(org, repo string, number int, comment string) error
 	CreateLabel(org, repo string, label github.Label) error
 	AddLabels(org, repo string, number int, labels []string) error
 	RemoveLabel(org, repo string, number int, label string) error

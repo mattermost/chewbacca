@@ -5,15 +5,15 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/hex"
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 
 	"github.com/google/go-github/v31/github"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
-// GHClient set the confiuration needed.
+// GHClient set the configuration needed.
 type GHClient struct {
 	GitHubClient *github.Client
 	GitHubSecret string
@@ -55,12 +55,14 @@ func (g *GHClient) ValidateSignature(receivedHash []string, bodyBuffer []byte) e
 }
 
 // CreateComment sends a GitHub Comment to a specific issue/pull request.
-func (g *GHClient) CreateComment(org, repo string, number int, comment string) {
+func (g *GHClient) CreateComment(org, repo string, number int, comment string) error {
 	g.logger.WithField("comment", comment).Debug("Sending GitHub comment")
 	_, _, err := g.GitHubClient.Issues.CreateComment(context.Background(), org, repo, number, &github.IssueComment{Body: &comment})
 	if err != nil {
-		g.logger.WithError(err).Debug("Failed to send GitHub comment")
+		return errors.Wrap(err, "Failed to send GitHub comment")
 	}
+
+	return nil
 }
 
 // CreateLabel creates a GitHub label to a specific repository if it doesn't exist.
@@ -68,8 +70,7 @@ func (g *GHClient) CreateLabel(org, repo string, label github.Label) error {
 	g.logger.WithField("labels", label).Debug("Creating GitHub label")
 	_, _, err := g.GitHubClient.Issues.CreateLabel(context.Background(), org, repo, &label)
 	if err != nil {
-		g.logger.WithError(err).Debug("Failed to create GitHub label")
-		return err
+		return errors.Wrap(err, "Failed to create GitHub label")
 	}
 
 	return nil
@@ -80,8 +81,7 @@ func (g *GHClient) AddLabels(org, repo string, number int, labels []string) erro
 	g.logger.WithField("labels", labels).Debug("Setting GitHub label")
 	_, _, err := g.GitHubClient.Issues.AddLabelsToIssue(context.Background(), org, repo, number, labels)
 	if err != nil {
-		g.logger.WithError(err).Debug("Failed to set GitHub labels")
-		return err
+		return errors.Wrap(err, "Failed to set GitHub labels")
 	}
 
 	return nil
@@ -92,8 +92,7 @@ func (g *GHClient) RemoveLabel(org, repo string, number int, label string) error
 	g.logger.WithField("label", label).Debug("Removing GitHub label")
 	_, err := g.GitHubClient.Issues.RemoveLabelForIssue(context.Background(), org, repo, number, label)
 	if err != nil {
-		g.logger.WithError(err).Debug("Failed to set GitHub labels")
-		return err
+		return errors.Wrap(err,"Failed to set GitHub labels")
 	}
 
 	return nil
@@ -108,7 +107,7 @@ func (g *GHClient) GetComments(org, repo string, number int) ([]*github.IssueCom
 	}).Debug("Getting GitHub comment")
 	comments, _, err := g.GitHubClient.Issues.ListComments(context.Background(), org, repo, number, nil)
 	if err != nil {
-		g.logger.WithError(err).Debug("Failed to set GitHub labels")
+		errors.Wrap(err,"Failed to set GitHub labels")
 	}
 	return comments, nil
 }
@@ -123,7 +122,7 @@ func (g *GHClient) GetIssueLabels(org, repo string, number int) ([]*github.Label
 
 	labels, _, err := g.GitHubClient.Issues.ListLabelsByIssue(context.Background(), org, repo, number, nil)
 	if err != nil {
-		g.logger.WithError(err).Debug("Failed to set GitHub labels")
+		errors.Wrap(err,"Failed to set GitHub labels")
 	}
 	return labels, nil
 }
@@ -138,7 +137,7 @@ func (g *GHClient) ListIssueComments(org, repo string, number int) ([]*github.Is
 
 	comments, _, err := g.GitHubClient.Issues.ListComments(context.Background(), org, repo, number, nil)
 	if err != nil {
-		g.logger.WithError(err).Debug("Failed to set GitHub labels")
+		errors.Wrap(err,"Failed to set GitHub labels")
 	}
 	return comments, nil
 }
@@ -192,8 +191,7 @@ func (g *GHClient) SetStatus(org, repo, sha, state, message string) error {
 
 	_, _, err := g.GitHubClient.Repositories.CreateStatus(context.Background(), org, repo, sha, mergeStatus)
 	if err != nil {
-		g.logger.WithError(err).Error("Unable to create the github status for for PR")
-		return err
+		return	errors.Wrap(err,"Unable to create the github status for for PR")
 	}
 
 	return nil
@@ -209,8 +207,7 @@ func (g *GHClient) GetPullRequest(org, repo string, number int) (*github.PullReq
 
 	pr, _, err := g.GitHubClient.PullRequests.Get(context.Background(), org, repo, number)
 	if err != nil {
-		g.logger.WithError(err).Error("Unable to get the pull request")
-		return nil, err
+		return nil, errors.Wrap(err, "Unable to get the pull request")
 	}
 
 	return pr, nil
@@ -232,8 +229,7 @@ func (g *GHClient) ListRepoLabels(org, repo string) ([]*github.Label, error) {
 	for {
 		labels, resp, err := g.GitHubClient.Issues.ListLabels(context.Background(), org, repo, opt)
 		if err != nil {
-			g.logger.WithError(err).Error("Unable to get the pull request")
-			return nil, err
+			return nil, errors.Wrap(err, "Unable to get the pull request")
 		}
 
 		allLabels = append(allLabels, labels...)

@@ -73,20 +73,20 @@ func handleReleaseNotesPR(c *Context, pr *github.PullRequestEvent) {
 		repolabelsexisting.Insert(strings.ToLower(l.GetName()))
 	}
 	branchList := []string{
-		"feat",
-		"fix",
-		"test",
-		"chore",
-		"refactor",
+		"feat/",
+		"fix/",
+		"test/",
+		"chore/",
+		"refactor/",
 	}
 
 	branchToLabel := map[string]string{
-		"feat": "kind/feature",
-		"docs": "kind/documentation",
-		"fix": "kind/bug",
-		"test": "kind/testing",
-		"chore": "kind/chore",
-		"refactor": "kind/refactor",
+		"feat/": "kind/feature",
+		"docs/": "kind/documentation",
+		"fix/": "kind/bug",
+		"test/": "kind/testing",
+		"chore/": "kind/chore",
+		"refactor/": "kind/refactor",
 	}
 	labelsToColours := map[string]string{
 		"kind/feature": "c7def8",
