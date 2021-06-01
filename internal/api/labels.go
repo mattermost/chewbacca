@@ -132,6 +132,10 @@ func handleCommentLabel(c *Context, e *github.IssueCommentEvent) {
 
 }
 
+func buildGhLabel(name string, description string, color string) github.Label {
+	return github.Label{Name: &name, Description: &description, Color: &color}
+}
+
 // Get Labels from Regexp matches
 func getLabelsFromREMatches(matches [][]string) (labels []string) {
 	for _, match := range matches {

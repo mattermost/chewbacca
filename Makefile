@@ -41,12 +41,12 @@ govet:
 	$(GO) vet ./...
 	@echo Govet success
 
-## Builds and thats all :)
+## Builds and that's all :)
 .PHONY: dist
 dist:	build
 
 .PHONY: build
-build: ## Build the mattermost-cloud
+build: ## Build the Chewbacca
 	@echo Building Chewbacca
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GO) build -gcflags all=-trimpath=$(PWD) -asmflags all=-trimpath=$(PWD) -a -installsuffix cgo -o build/chewbacca ./cmd
 

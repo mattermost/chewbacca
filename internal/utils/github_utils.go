@@ -37,7 +37,7 @@ func NormLogin(login string) string {
 	return strings.TrimPrefix(strings.ToLower(login), "@")
 }
 
-// LabelsSet create a label set based on the gihub labels to make easier the manipulation
+// LabelsSet create a label set based on the github labels to make easier the manipulation
 func LabelsSet(labels []*github.Label) sets.String {
 	prLabels := sets.String{}
 	for _, label := range labels {

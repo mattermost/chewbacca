@@ -47,6 +47,7 @@ var (
 func handleReleaseNotesPR(c *Context, pr *github.PullRequestEvent) {
 	// Only consider events that edit the PR body or add a label
 	if pr.GetAction() != model.PullRequestActionOpened &&
+		pr.GetAction() != model.PullRequestActionReopened &&
 		pr.GetAction() != model.PullRequestActionEdited &&
 		pr.GetAction() != model.PullRequestActionLabeled {
 		return
@@ -60,12 +61,73 @@ func handleReleaseNotesPR(c *Context, pr *github.PullRequestEvent) {
 	repo := pr.GetRepo().GetName()
 	number := pr.GetNumber()
 	user := pr.GetPullRequest().GetUser().GetLogin()
+	branchName := pr.GetPullRequest().GetHead().GetRef()
+	repoLabels, err := c.GitHub.ListRepoLabels(org, repo)
+	if err != nil {
+		c.Logger.WithError(err).Errorf("failed to list repo labels on repo #%s", repo)
+		return
+	}
+
+	repolabelsexisting := sets.String{}
+	for _, l := range repoLabels {
+		repolabelsexisting.Insert(strings.ToLower(l.GetName()))
+	}
+	branchList := []string{
+		"feat/",
+		"fix/",
+		"test/",
+		"chore/",
+		"refactor/",
+	}
+
+	branchToLabel := map[string]string{
+		"feat/": "kind/feature",
+		"docs/": "kind/documentation",
+		"fix/": "kind/bug",
+		"test/": "kind/testing",
+		"chore/": "kind/chore",
+		"refactor/": "kind/refactor",
+	}
+	labelsToColours := map[string]string{
+		"kind/feature": "c7def8",
+		"kind/documentation": "c7def8",
+		"kind/bug": "e11d21",
+		"kind/chore": "c7def8",
+		"kind/refactor": "c7def8",
+		"kind/testing": "79D6D6",
+	}
+	labelsToDescriptions := map[string]string{
+		"kind/feature": "Categorizes issue or PR as related to a new feature.",
+		"kind/documentation": "Categorizes issue or PR as related to documentation.",
+		"kind/bug": "Categorizes issue or PR as related to a bug.",
+		"kind/chore": "Categorizes issue or PR as related to updates that are not production code.",
+		"kind/refactor": "Categorizes issue or PR as related to refactor of production code.",
+		"kind/testing": "Categorizes issue or PR as related to addition or refactoring of tests.",
+	}
+
+
+	var branchLabels []string
+	for _, conventionSubstring := range branchList {
+		if strings.Contains(branchName, conventionSubstring) {
+			branchLabels = append(branchLabels, branchToLabel[conventionSubstring])
+			continue
+		}
+	}
+		if len(branchLabels) > 0 {
+			if !repolabelsexisting.Has(branchLabels[0]) {
+				c.GitHub.CreateLabel(org, repo, buildGhLabel(branchLabels[0], labelsToDescriptions[branchLabels[0]], labelsToColours[branchLabels[0]]))
+			}
+			err := c.GitHub.AddLabels(org, repo, number, branchLabels)
+			if err != nil {
+				c.Logger.WithError(err).Errorf("failed to add branch labels on PR #%d", number)
+				return
+			}
+		}
 
 	prInitLabels, err := c.GitHub.GetIssueLabels(org, repo, number)
 	if err != nil {
 		c.Logger.WithError(err).Errorf("failed to list labels on PR #%d", number)
 	}
-
 	prLabels := utils.LabelsSet(prInitLabels)
 
 	var comments []*github.IssueComment
@@ -109,7 +171,6 @@ func handleReleaseNotesPR(c *Context, pr *github.PullRequestEvent) {
 	if err != nil {
 		c.Logger.WithError(err)
 	}
-
 }
 
 func handleReleaseNotesComment(c *Context, ic *github.IssueCommentEvent) error {

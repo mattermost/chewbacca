@@ -75,7 +75,7 @@ func handleReceiveWebhook(c *Context, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	default:
-		c.Logger.Info("other events not implemeted")
+		c.Logger.Info("other events not implemented")
 		w.WriteHeader(http.StatusNotImplemented)
 		return
 	}
