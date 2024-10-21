@@ -1,6 +1,6 @@
 # Build the matterwick
-ARG DOCKER_BUILD_IMAGE=golang:1.14.2
-ARG DOCKER_BASE_IMAGE=alpine:3.11
+ARG DOCKER_BUILD_IMAGE=golang:1.22.8
+ARG DOCKER_BASE_IMAGE=alpine:3.19
 
 FROM ${DOCKER_BUILD_IMAGE} AS build
 WORKDIR /chewbacca/

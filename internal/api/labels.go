@@ -88,7 +88,7 @@ func handleCommentLabel(c *Context, e *github.IssueCommentEvent) {
 			continue
 		}
 
-		if err := c.GitHub.AddLabels(org, repo, number, []string{labelToAdd}); err != nil {
+		if err = c.GitHub.AddLabels(org, repo, number, []string{labelToAdd}); err != nil {
 			c.Logger.WithError(err).Errorf("GitHub failed to add the following label: %s", labelToAdd)
 		}
 	}
@@ -104,7 +104,7 @@ func handleCommentLabel(c *Context, e *github.IssueCommentEvent) {
 			continue
 		}
 
-		if err := c.GitHub.RemoveLabel(org, repo, number, labelToRemove); err != nil {
+		if err = c.GitHub.RemoveLabel(org, repo, number, labelToRemove); err != nil {
 			c.Logger.WithError(err).Errorf("GitHub failed to remove the following label: %s", labelToRemove)
 		}
 	}
@@ -112,21 +112,30 @@ func handleCommentLabel(c *Context, e *github.IssueCommentEvent) {
 	if len(nonexistent) > 0 {
 		c.Logger.Infof("Nonexistent labels: %v", nonexistent)
 		msg := fmt.Sprintf("The label(s) `%s` cannot be applied. These labels are supported: `%s`", strings.Join(nonexistent, ", "), strings.Join(additionalLabels, ", "))
-		c.GitHub.CreateComment(org, repo, number, utils.FormatResponseRaw(e.GetComment().GetBody(), e.GetIssue().GetHTMLURL(), e.GetComment().GetUser().GetLogin(), msg))
+		err = c.GitHub.CreateComment(org, repo, number, utils.FormatResponseRaw(e.GetComment().GetBody(), e.GetIssue().GetHTMLURL(), e.GetComment().GetUser().GetLogin(), msg))
+		if err != nil {
+			c.Logger.WithError(err).Error("Failed to create comment")
+		}
 		return
 	}
 
 	if len(noSuchLabelsInRepo) > 0 {
 		c.Logger.Infof("Labels missing in repo: %v", noSuchLabelsInRepo)
 		msg := fmt.Sprintf("The label(s) `%s` cannot be applied, because the repository doesn't have them", strings.Join(noSuchLabelsInRepo, ", "))
-		c.GitHub.CreateComment(org, repo, number, utils.FormatResponseRaw(e.GetComment().GetBody(), e.GetIssue().GetHTMLURL(), e.GetComment().GetUser().GetLogin(), msg))
+		err = c.GitHub.CreateComment(org, repo, number, utils.FormatResponseRaw(e.GetComment().GetBody(), e.GetIssue().GetHTMLURL(), e.GetComment().GetUser().GetLogin(), msg))
+		if err != nil {
+			c.Logger.WithError(err).Error("Failed to create comment")
+		}
 		return
 	}
 
 	// Tried to remove Labels that were not present on the Issue
 	if len(noSuchLabelsOnIssue) > 0 {
 		msg := fmt.Sprintf("Those labels are not set on the issue: `%v`", strings.Join(noSuchLabelsOnIssue, ", "))
-		c.GitHub.CreateComment(org, repo, number, utils.FormatResponseRaw(e.GetComment().GetBody(), e.GetIssue().GetHTMLURL(), e.GetComment().GetUser().GetLogin(), msg))
+		err = c.GitHub.CreateComment(org, repo, number, utils.FormatResponseRaw(e.GetComment().GetBody(), e.GetIssue().GetHTMLURL(), e.GetComment().GetUser().GetLogin(), msg))
+		if err != nil {
+			c.Logger.WithError(err).Error("Failed to create comment")
+		}
 		return
 	}
 
