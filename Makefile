@@ -3,8 +3,8 @@
 ################################################################################
 
 ## Docker Build Versions
-DOCKER_BUILD_IMAGE = golang:1.14.2
-DOCKER_BASE_IMAGE = alpine:3.11
+DOCKER_BUILD_IMAGE = golang:1.22.8
+DOCKER_BASE_IMAGE = alpine:3.19
 
 ################################################################################
 
@@ -13,6 +13,16 @@ CHEWBACCA_IMAGE ?= mattermost/chewbacca-bot:test
 MACHINE = $(shell uname -m)
 GOFLAGS ?= $(GOFLAGS:)
 BUILD_TIME := $(shell date -u +%Y%m%d.%H%M%S)
+
+################################################################################
+
+TOOLS_BIN_DIR := $(abspath bin)
+
+ENSURE_GOLANGCI_LINT = ./scripts/ensure_golangci-lint.sh
+
+GOLANGCILINT_VER := v1.53.3
+GOLANGCILINT_BIN := golangci-lint
+GOLANGCILINT := $(TOOLS_BIN_DIR)/$(GOLANGCILINT_BIN)
 
 ################################################################################
 
@@ -28,10 +38,9 @@ check-style: govet lint
 
 ## Runs lint against all packages.
 .PHONY: lint
-lint:
-	@echo Running lint
-	env GO111MODULE=off $(GO) get -u golang.org/x/lint/golint
-	$(shell $(GO) list -f {{.Target}} golang.org/x/lint/golint) -set_exit_status ./...
+lint: $(GOLANGCILINT)
+	@echo Running golangci-lint
+	$(GOLANGCILINT) run
 	@echo lint success
 
 ## Runs govet against all packages.
@@ -65,3 +74,6 @@ install: build
 .PHONY: test
 test:
 	go test ./... -v
+
+$(GOLANGCILINT): ## Build golangci-lint
+	BINDIR=$(TOOLS_BIN_DIR) TAG=$(GOLANGCILINT_VER) $(ENSURE_GOLANGCI_LINT)

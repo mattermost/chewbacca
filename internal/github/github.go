@@ -6,6 +6,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+
 	"github.com/pkg/errors"
 
 	"github.com/google/go-github/v31/github"
@@ -92,7 +93,7 @@ func (g *GHClient) RemoveLabel(org, repo string, number int, label string) error
 	g.logger.WithField("label", label).Debug("Removing GitHub label")
 	_, err := g.GitHubClient.Issues.RemoveLabelForIssue(context.Background(), org, repo, number, label)
 	if err != nil {
-		return errors.Wrap(err,"Failed to set GitHub labels")
+		return errors.Wrap(err, "Failed to set GitHub labels")
 	}
 
 	return nil
@@ -107,7 +108,7 @@ func (g *GHClient) GetComments(org, repo string, number int) ([]*github.IssueCom
 	}).Debug("Getting GitHub comment")
 	comments, _, err := g.GitHubClient.Issues.ListComments(context.Background(), org, repo, number, nil)
 	if err != nil {
-		errors.Wrap(err,"Failed to set GitHub labels")
+		return nil, errors.Wrap(err, "Failed to set GitHub labels")
 	}
 	return comments, nil
 }
@@ -122,7 +123,7 @@ func (g *GHClient) GetIssueLabels(org, repo string, number int) ([]*github.Label
 
 	labels, _, err := g.GitHubClient.Issues.ListLabelsByIssue(context.Background(), org, repo, number, nil)
 	if err != nil {
-		errors.Wrap(err,"Failed to set GitHub labels")
+		return nil, errors.Wrap(err, "Failed to set GitHub labels")
 	}
 	return labels, nil
 }
@@ -137,7 +138,7 @@ func (g *GHClient) ListIssueComments(org, repo string, number int) ([]*github.Is
 
 	comments, _, err := g.GitHubClient.Issues.ListComments(context.Background(), org, repo, number, nil)
 	if err != nil {
-		errors.Wrap(err,"Failed to set GitHub labels")
+		return nil, errors.Wrap(err, "Failed to set GitHub labels")
 	}
 	return comments, nil
 }
@@ -191,7 +192,7 @@ func (g *GHClient) SetStatus(org, repo, sha, state, message string) error {
 
 	_, _, err := g.GitHubClient.Repositories.CreateStatus(context.Background(), org, repo, sha, mergeStatus)
 	if err != nil {
-		return	errors.Wrap(err,"Unable to create the github status for for PR")
+		return errors.Wrap(err, "Unable to create the github status for for PR")
 	}
 
 	return nil

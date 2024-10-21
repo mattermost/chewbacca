@@ -2,7 +2,7 @@ package api
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -24,7 +24,7 @@ func initGitHubWebhook(apiRouter *mux.Router, context *Context) {
 
 // handleReceiveWebhook responds to POST /api/github_event, when receive a event from GitHub.
 func handleReceiveWebhook(c *Context, w http.ResponseWriter, r *http.Request) {
-	buf, _ := ioutil.ReadAll(r.Body)
+	buf, _ := io.ReadAll(r.Body)
 
 	receivedHash := strings.SplitN(r.Header.Get("X-Hub-Signature"), "=", 2)
 	if receivedHash[0] != "sha1" {
@@ -45,7 +45,7 @@ func handleReceiveWebhook(c *Context, w http.ResponseWriter, r *http.Request) {
 	eventType := r.Header.Get("X-GitHub-Event")
 	switch eventType {
 	case "ping":
-		pingEvent := model.PingEventFromJSON(ioutil.NopCloser(bytes.NewBuffer(buf)))
+		pingEvent := model.PingEventFromJSON(io.NopCloser(bytes.NewBuffer(buf)))
 		if pingEvent == nil {
 			c.Logger.WithField("hookID", pingEvent.GetHookID()).Info("ping event")
 			w.WriteHeader(http.StatusBadRequest)
@@ -54,7 +54,7 @@ func handleReceiveWebhook(c *Context, w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusAccepted)
 		return
 	case "pull_request":
-		event := model.PullRequestEventFromJSON(ioutil.NopCloser(bytes.NewBuffer(buf)))
+		event := model.PullRequestEventFromJSON(io.NopCloser(bytes.NewBuffer(buf)))
 		c.Logger = c.Logger.WithField("pr", event.GetNumber())
 		c.Logger.WithField("action", event.GetAction()).Info("pull request event")
 		org = event.GetRepo().GetOwner().GetLogin()
@@ -62,7 +62,7 @@ func handleReceiveWebhook(c *Context, w http.ResponseWriter, r *http.Request) {
 		number = event.GetNumber()
 		handlePullRequestEvent(c, event)
 	case "issue_comment":
-		event := model.IssueCommentEventFromJSON(ioutil.NopCloser(bytes.NewBuffer(buf)))
+		event := model.IssueCommentEventFromJSON(io.NopCloser(bytes.NewBuffer(buf)))
 		c.Logger = c.Logger.WithField("issue", event.GetIssue().GetNumber())
 		c.Logger.Info("issue comment event")
 		handleIssueCommentEvent(c, event)

@@ -81,30 +81,29 @@ func handleReleaseNotesPR(c *Context, pr *github.PullRequestEvent) {
 	}
 
 	branchToLabel := map[string]string{
-		"feat/": "kind/feature",
-		"docs/": "kind/documentation",
-		"fix/": "kind/bug",
-		"test/": "kind/testing",
-		"chore/": "kind/chore",
+		"feat/":     "kind/feature",
+		"docs/":     "kind/documentation",
+		"fix/":      "kind/bug",
+		"test/":     "kind/testing",
+		"chore/":    "kind/chore",
 		"refactor/": "kind/refactor",
 	}
 	labelsToColours := map[string]string{
-		"kind/feature": "c7def8",
+		"kind/feature":       "c7def8",
 		"kind/documentation": "c7def8",
-		"kind/bug": "e11d21",
-		"kind/chore": "c7def8",
-		"kind/refactor": "c7def8",
-		"kind/testing": "79D6D6",
+		"kind/bug":           "e11d21",
+		"kind/chore":         "c7def8",
+		"kind/refactor":      "c7def8",
+		"kind/testing":       "79D6D6",
 	}
 	labelsToDescriptions := map[string]string{
-		"kind/feature": "Categorizes issue or PR as related to a new feature.",
+		"kind/feature":       "Categorizes issue or PR as related to a new feature.",
 		"kind/documentation": "Categorizes issue or PR as related to documentation.",
-		"kind/bug": "Categorizes issue or PR as related to a bug.",
-		"kind/chore": "Categorizes issue or PR as related to updates that are not production code.",
-		"kind/refactor": "Categorizes issue or PR as related to refactor of production code.",
-		"kind/testing": "Categorizes issue or PR as related to addition or refactoring of tests.",
+		"kind/bug":           "Categorizes issue or PR as related to a bug.",
+		"kind/chore":         "Categorizes issue or PR as related to updates that are not production code.",
+		"kind/refactor":      "Categorizes issue or PR as related to refactor of production code.",
+		"kind/testing":       "Categorizes issue or PR as related to addition or refactoring of tests.",
 	}
-
 
 	var branchLabels []string
 	for _, conventionSubstring := range branchList {
@@ -113,16 +112,19 @@ func handleReleaseNotesPR(c *Context, pr *github.PullRequestEvent) {
 			continue
 		}
 	}
-		if len(branchLabels) > 0 {
-			if !repolabelsexisting.Has(branchLabels[0]) {
-				c.GitHub.CreateLabel(org, repo, buildGhLabel(branchLabels[0], labelsToDescriptions[branchLabels[0]], labelsToColours[branchLabels[0]]))
-			}
-			err := c.GitHub.AddLabels(org, repo, number, branchLabels)
+	if len(branchLabels) > 0 {
+		if !repolabelsexisting.Has(branchLabels[0]) {
+			err = c.GitHub.CreateLabel(org, repo, buildGhLabel(branchLabels[0], labelsToDescriptions[branchLabels[0]], labelsToColours[branchLabels[0]]))
 			if err != nil {
-				c.Logger.WithError(err).Errorf("failed to add branch labels on PR #%d", number)
-				return
+				c.Logger.WithError(err).Error("Failed to create label")
 			}
 		}
+		err = c.GitHub.AddLabels(org, repo, number, branchLabels)
+		if err != nil {
+			c.Logger.WithError(err).Errorf("failed to add branch labels on PR #%d", number)
+			return
+		}
+	}
 
 	prInitLabels, err := c.GitHub.GetIssueLabels(org, repo, number)
 	if err != nil {
@@ -137,7 +139,10 @@ func handleReleaseNotesPR(c *Context, pr *github.PullRequestEvent) {
 		if prLabels.Has(deprecationLabel) {
 			if !prLabels.Has(ReleaseNoteLabelNeeded) {
 				comment := utils.FormatSimpleResponse(user, releaseNoteDeprecationBody)
-				c.GitHub.CreateComment(org, repo, number, comment)
+				err = c.GitHub.CreateComment(org, repo, number, comment)
+				if err != nil {
+					c.Logger.WithError(err).Error("Failed to create comment")
+				}
 			}
 		} else {
 			comments, err = c.GitHub.ListIssueComments(org, repo, number)
