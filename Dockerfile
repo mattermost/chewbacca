@@ -1,19 +1,19 @@
 # Build the matterwick
 ARG DOCKER_BUILD_IMAGE=golang:1.22.8
-ARG DOCKER_BASE_IMAGE=alpine:3.19
+ARG DOCKER_BASE_IMAGE=alpine:3.20
 
-FROM ${DOCKER_BUILD_IMAGE} AS build
+FROM --platform=${TARGETPLATFORM} ${DOCKER_BUILD_IMAGE} AS build
 WORKDIR /chewbacca/
 COPY . /chewbacca/
 RUN make build
 
 # Final Image
-FROM ${DOCKER_BASE_IMAGE}
+FROM --platform=${TARGETPLATFORM} ${DOCKER_BASE_IMAGE}
 
 LABEL name="chewbacca" \
   maintainer="cloud-team@mattermost.com" \
   distribution-scope="public" \
-  architecture="x86_64" \
+  architecture="x86_64, arm64" \
   url="https://mattermost.com"
 
 ENV CHEWBACCA=/chewbacca/chewbacca \

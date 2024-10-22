@@ -1,0 +1,43 @@
+---
+name: test
+on:
+  workflow_call:
+
+jobs:
+  check-style:
+    runs-on: ubuntu-latest
+    env:
+      GOFLAGS: "-buildvcs=false"
+    container:
+      image: golang:1.22-bookworm
+    steps:
+    - name: ci/checkout-repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: ci/cache-gopath
+      uses: actions/cache@v3
+      with:
+        key: go-mod-v1-${{ hashFiles('go.sum') }}
+        path: /go
+      if: "${{ !env.ACT }}"
+    - name: ci/check-code-style
+      run: make check-style
+
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: golang:1.22-bookworm
+    steps:
+    - name: ci/checkout-repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: ci/cache-gopath
+      uses: actions/cache@v3
+      with:
+        key: go-mod-v1-${{ hashFiles('go.sum') }}
+        path: /go
+      if: "${{ !env.ACT }}"
+    - name: ci/test
+      run: make test

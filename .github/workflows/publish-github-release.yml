@@ -1,10 +1,9 @@
 ---
-name: ci
+name: release
 on:
-  pull_request:
   push:
-    branches:
-      - master
+    tags:
+    - v[0-9]+.[0-9]+.[0-9]+*
 
 jobs:
   test:
@@ -12,6 +11,6 @@ jobs:
   push-docker:
     uses: ./.github/workflows/.docker-push.yml
     with:
-      is_pr: "${{ github.ref != 'refs/heads/master' }}"
+      is_pr: false
     secrets: inherit
     needs: [test]
