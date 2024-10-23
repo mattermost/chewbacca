@@ -22,9 +22,13 @@ TOOLS_BIN_DIR := $(abspath bin)
 
 ENSURE_GOLANGCI_LINT = ./scripts/ensure_golangci-lint.sh
 
-GOLANGCILINT_VER := v1.53.3
+GOLANGCILINT_VER := v1.61.0
 GOLANGCILINT_BIN := golangci-lint
 GOLANGCILINT := $(TOOLS_BIN_DIR)/$(GOLANGCILINT_BIN)
+
+OUTDATED_VER := master
+OUTDATED_BIN := go-mod-outdated
+OUTDATED_GEN := $(TOOLS_BIN_DIR)/$(OUTDATED_BIN)
 
 ################################################################################
 
@@ -35,7 +39,7 @@ all: check-style dist
 
 ## Runs govet and gofmt against all packages.
 .PHONY: check-style
-check-style: govet lint
+check-style: govet lint goformat
 	@echo Checking for style guide compliance
 
 ## Runs lint against all packages.
@@ -58,6 +62,26 @@ govet:
 	$(GO) vet ./...
 	@echo Govet success
 
+## Checks if files are formatted with go fmt.
+.PHONY: goformat
+goformat:
+	@echo Checking if code is formatted
+	@for package in $(PACKAGES); do \
+		echo "Checking "$$package; \
+		files=$$(go list -f '{{range .GoFiles}}{{$$.Dir}}/{{.}} {{end}}' $$package); \
+		if [ "$$files" ]; then \
+			gofmt_output=$$(gofmt -d -s $$files 2>&1); \
+			if [ "$$gofmt_output" ]; then \
+				echo "$$gofmt_output"; \
+				echo "gofmt failed"; \
+				echo "To fix it, run:"; \
+				echo "go fmt [FAILED_PACKAGE]"; \
+				exit 1; \
+			fi; \
+		fi; \
+	done
+	@echo "gofmt success"; \
+
 ## Builds and that's all :)
 .PHONY: dist
 dist:	build
@@ -75,7 +99,7 @@ build: ## Build the Chewbacca
 		echo "Unknown architecture $(ARCH)"; \
 		exit 1; \
 	fi; \
-	GOOS=linux CGO_ENABLED=0 $(GO) build -gcflags -buildvcs=false all=-trimpath=$(PWD) -asmflags all=-trimpath=$(PWD) -a -installsuffix cgo -o build/chewbacca ./cmd
+		GOOS=linux CGO_ENABLED=0 $(GO) build -buildvcs=false -ldflags '$(LDFLAGS)' -gcflags all=-trimpath=$(PWD) -asmflags all=-trimpath=$(PWD) -a -installsuffix cgo -o ./build/bin/chewbacca  ./cmd
 
 .PHONY: build-image
 build-image:  ## Build the image for Chewbacca
@@ -143,9 +167,27 @@ install: build
 test:
 	go test ./... -v
 
+.PHONY: scan
+scan:
+	docker scout cves $(CHEWBACCA_IMAGE)
+
+.PHONY: check-modules
+check-modules: $(OUTDATED_GEN) ## Check outdated modules
+	@echo Checking outdated modules
+	$(GO) list -mod=mod -u -m -json all | $(OUTDATED_GEN) -update -direct
+
+.PHONY: update-modules
+update-modules: $(OUTDATED_GEN) ## Check outdated modules
+	@echo Update modules
+	$(GO) get -u ./...
+	$(GO) mod tidy
+
 ## --------------------------------------
 ## Tooling Binaries
 ## --------------------------------------
 
 $(GOPATH)/bin/golangci-lint: ## Install golangci-lint
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCILINT_VER)
+
+$(OUTDATED_GEN): ## Build go-mod-outdated.
+	GOBIN=$(TOOLS_BIN_DIR) $(GO_INSTALL) github.com/psampaz/go-mod-outdated $(OUTDATED_BIN) $(OUTDATED_VER)

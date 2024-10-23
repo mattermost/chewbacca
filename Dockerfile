@@ -3,9 +3,12 @@ ARG DOCKER_BUILD_IMAGE=golang:1.22.8
 ARG DOCKER_BASE_IMAGE=alpine:3.20
 
 FROM --platform=${TARGETPLATFORM} ${DOCKER_BUILD_IMAGE} AS build
+ARG TARGETARCH
 WORKDIR /chewbacca/
 COPY . /chewbacca/
-RUN make build
+ENV ARCH=${TARGETARCH}
+
+RUN make build ARCH=${ARCH}
 
 # Final Image
 FROM --platform=${TARGETPLATFORM} ${DOCKER_BASE_IMAGE}
@@ -24,7 +27,7 @@ WORKDIR /chewbacca/
 
 RUN  apk update && apk add ca-certificates
 
-COPY --from=build /chewbacca/build/chewbacca /chewbacca/chewbacca
+COPY --from=build /chewbacca/build/bin/chewbacca /chewbacca/chewbacca
 COPY --from=build /chewbacca/static /chewbacca/static
 COPY --from=build /chewbacca/build/bin /usr/local/bin
 

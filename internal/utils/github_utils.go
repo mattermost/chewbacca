@@ -10,7 +10,7 @@ import (
 // HasLabel checks if label is in the label set "issueLabels".
 func HasLabel(label string, issueLabels []*github.Label) bool {
 	for _, l := range issueLabels {
-		if strings.ToLower(l.GetName()) == strings.ToLower(label) {
+		if strings.EqualFold(l.GetName(), label) {
 			return true
 		}
 	}
@@ -38,8 +38,8 @@ func NormLogin(login string) string {
 }
 
 // LabelsSet create a label set based on the github labels to make easier the manipulation
-func LabelsSet(labels []*github.Label) sets.String {
-	prLabels := sets.String{}
+func LabelsSet(labels []*github.Label) sets.Set[string] {
+	prLabels := sets.New[string]()
 	for _, label := range labels {
 		prLabels.Insert(label.GetName())
 	}
