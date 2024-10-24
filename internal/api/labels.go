@@ -13,7 +13,6 @@ import (
 )
 
 var (
-	defaultLabels          = []string{"kind", "priority"}
 	labelRegex             = regexp.MustCompile(`(?m)^/(kind|priority)\s*(.*?)\s*$`)
 	removeLabelRegex       = regexp.MustCompile(`(?m)^/remove-(kind|priority)\s*(.*?)\s*$`)
 	customLabelRegex       = regexp.MustCompile(`(?m)^/label\s*(.*?)\s*$`)
@@ -63,7 +62,7 @@ func handleCommentLabel(c *Context, e *github.IssueCommentEvent) {
 		return
 	}
 
-	RepoLabelsExisting := sets.String{}
+	RepoLabelsExisting := sets.New[string]()
 	for _, l := range repoLabels {
 		RepoLabelsExisting.Insert(strings.ToLower(l.GetName()))
 	}
@@ -163,7 +162,7 @@ func getLabelsFromGenericMatches(matches [][]string, additionalLabels []string, 
 		return nil
 	}
 	var labels []string
-	labelFilter := sets.String{}
+	labelFilter := sets.New[string]()
 	for _, l := range additionalLabels {
 		labelFilter.Insert(strings.ToLower(l))
 	}

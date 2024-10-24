@@ -1,4 +1,5 @@
 /build/chewbacca
+/build/bin
 /bin/*
 
 # Common used editors/IDEs

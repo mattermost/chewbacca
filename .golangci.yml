@@ -14,6 +14,7 @@ linters-settings:
     enable-all: true
     disable:
       - fieldalignment
+      - atomicalign
 
 linters:
   disable-all: true
@@ -23,5 +24,6 @@ linters:
     - govet
     - ineffassign
     - predeclared
-    - exportloopref
+    - staticcheck
     - unconvert
+    - unused

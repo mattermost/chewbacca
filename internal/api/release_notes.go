@@ -68,7 +68,7 @@ func handleReleaseNotesPR(c *Context, pr *github.PullRequestEvent) {
 		return
 	}
 
-	repolabelsexisting := sets.String{}
+	repolabelsexisting := sets.New[string]()
 	for _, l := range repoLabels {
 		repolabelsexisting.Insert(strings.ToLower(l.GetName()))
 	}
@@ -224,13 +224,13 @@ func handleReleaseNotesComment(c *Context, ic *github.IssueCommentEvent) error {
 	}
 
 	if !utils.HasLabel(releaseNoteNone, ic.GetIssue().Labels) {
-		c.Logger.Info("adding relese note none label")
+		c.Logger.Info("adding release note none label")
 		if err := c.GitHub.AddLabels(org, repo, number, []string{releaseNoteNone}); err != nil {
 			return err
 		}
 	}
 
-	labels := sets.String{}
+	labels := sets.New[string]()
 	for _, label := range ic.Issue.Labels {
 		labels.Insert(label.GetName())
 	}
@@ -246,7 +246,7 @@ func handleReleaseNotesComment(c *Context, ic *github.IssueCommentEvent) error {
 
 }
 
-func removeOtherLabels(remover func(string) error, label string, labelSet []string, currentLabels sets.String) error {
+func removeOtherLabels(remover func(string) error, label string, labelSet []string, currentLabels sets.Set[string]) error {
 	var errs []error
 	for _, elem := range labelSet {
 		if elem != label && currentLabels.Has(elem) {
@@ -283,7 +283,7 @@ func getReleaseNote(body string) string {
 
 // determineReleaseNoteLabel returns the label to be added based on the contents of the 'release-note'
 // section of a PR's body text, as well as the set of PR's labels.
-func determineReleaseNoteLabel(body string, prLabels sets.String) string {
+func determineReleaseNoteLabel(body string, prLabels sets.Set[string]) string {
 	composedReleaseNote := strings.ToLower(strings.TrimSpace(getReleaseNote(body)))
 	hasNoneNoteInPRBody := noneRe.MatchString(composedReleaseNote)
 	hasDeprecationLabel := prLabels.Has(deprecationLabel)
